@@ -72,6 +72,7 @@ export default function Login() {
             Join now
           </Link>
         </p>
+        {formState}
       </div>
     </div>
   )

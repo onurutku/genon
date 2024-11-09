@@ -60,6 +60,7 @@ export default function Register() {
           </Link>
         </p>
       </div>
+      {formState}
     </div>
   )
 }
