@@ -3,8 +3,10 @@ import { db } from '@/public/utils/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import 'server-only'
-export async function LoginAction(currentState: any, formData: FormData) {
-  const userExist = db.find((user: any) => user.email === formData.get('email'))
+export async function LoginAction(currentState: unknown, formData: FormData) {
+  const userExist = db.find(
+    (user: { email: string }) => user.email === formData.get('email')
+  )
   if (userExist) {
     const serverCookies = await cookies()
     serverCookies.set('Authorization', JSON.stringify(userExist), {
