@@ -2,8 +2,17 @@ export type ValidationResult = {
   status: boolean
   message?: string
 }
-export function validateEmail(email?: string): ValidationResult {
-  let validation: ValidationResult
+export function validateEmail(
+  isTouched: boolean,
+  isDirty: boolean,
+  email?: string
+): ValidationResult {
+  let validation: ValidationResult = {
+    status: true
+  }
+  if (!isTouched) {
+    return validation
+  }
   if (!email || email.trim() === '') {
     validation = {
       status: false,
@@ -16,15 +25,15 @@ export function validateEmail(email?: string): ValidationResult {
 
   // Test if email matches the regex
   if (!regex.test(email)) {
-    validation = {
-      status: false,
-      message: 'Invalid email format'
+    if (isDirty) {
+      validation = {
+        status: false,
+        message: 'Invalid email format'
+      }
     }
     return validation
   }
-  validation = {
-    status: true
-  }
+
   return validation
 }
 export function validatePassword(password: string) {

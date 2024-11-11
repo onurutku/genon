@@ -7,7 +7,16 @@ interface Props {
   placeholder: string
   maxLength?: number
   defaultValue?: string
-  validator?: (email?: string) => ValidationResult
+  validator?: (
+    isTouched: boolean,
+    isDirty: boolean,
+    email?: string
+  ) => ValidationResult
+}
+interface InputValue {
+  value: string
+  isTouched: boolean
+  isDirty: boolean
 }
 export default function Input({
   type,
@@ -16,22 +25,60 @@ export default function Input({
   maxLength,
   validator
 }: Props) {
-  const newRef = useRef<any>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [typeState, setTypeState] = useState<string>(type)
-  const [value, setValue] = useState<string | boolean | number>()
+  const [{ value, isTouched, isDirty }, setValue] = useState<InputValue>({
+    value: '',
+    isDirty: false,
+    isTouched: false
+  })
+
+  useEffect(() => {
+    let firstTimeClicked: boolean = false
+    window.document.addEventListener('click', (e: MouseEvent) => {
+      if (inputRef.current?.name === (e.target as HTMLInputElement).name) {
+        firstTimeClicked = true
+      } else {
+        if (firstTimeClicked) {
+          setValue((prev: InputValue) => {
+            return { ...prev, isTouched: true }
+          })
+        }
+      }
+    })
+    return () => {
+      window.document.removeEventListener('click', () => {})
+    }
+  }, [])
+
   const onChange = (e: React.ChangeEvent<any>) => {
-    setValue(e.currentTarget.value)
+    const val: string = e.currentTarget.value
+
+    setValue((prev: InputValue) => {
+      return {
+        ...prev,
+        value: val,
+        isDirty: val ? true : false
+      }
+    })
   }
+  useEffect(() => {
+    console.log(value)
+    console.log(isDirty)
+    console.log(isTouched)
+  }, [value, isDirty, isTouched])
   return (
     <>
-      <div className='relative' ref={newRef}>
+      <div className='relative'>
         <input
+          ref={inputRef}
           type={typeState}
           name={name}
           placeholder={placeholder}
           className='w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none'
           maxLength={maxLength}
           onChange={onChange}
+          value={value}
         />
         {type === 'password' && (
           <a
@@ -44,6 +91,9 @@ export default function Input({
           </a>
         )}
       </div>
+      <span className='text:sm text-red-500'>
+        {validator ? validator(isTouched, isDirty, value).message : null}
+      </span>
     </>
   )
 }
