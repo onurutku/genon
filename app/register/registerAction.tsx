@@ -1,6 +1,5 @@
 'use server'
 import { db } from '@/public/utils/db'
-import { redirect } from 'next/navigation'
 import 'server-only'
 interface RegisterFormData {
   firstName?: string
