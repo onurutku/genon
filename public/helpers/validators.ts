@@ -5,86 +5,157 @@ export type ValidationResult = {
 export function validateEmail(
   isTouched: boolean,
   isDirty: boolean,
-  email?: string
+  input?: string
 ): ValidationResult {
-  let validation: ValidationResult = {
-    status: true
-  }
-  if (!isTouched) {
-    return validation
-  }
-  if (!email || email.trim() === '') {
-    validation = {
-      status: false,
-      message: 'Email cannot be empty'
-    }
-    return validation
-  }
-  // Regular expression for email validation
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-
-  // Test if email matches the regex
-  if (!regex.test(email)) {
-    if (isDirty) {
+  let validation: ValidationResult = {
+    status: false
+  }
+  if (isTouched) {
+    if (!input) {
+      validation = {
+        status: false,
+        message: '*Required'
+      }
+    } else if (!regex.test(input)) {
       validation = {
         status: false,
         message: 'Invalid email format'
       }
+    } else {
+      validation = {
+        status: true
+      }
     }
-    return validation
-  }
-
-  return validation
-}
-export function validatePassword(password: string) {
-  // Password should be at least 8 characters long
-  const minLength = 8
-  const maxLength = 50
-
-  // Regular expression checks:
-  const hasUpperCase = /[A-Z]/.test(password) // At least one uppercase letter
-  const hasLowerCase = /[a-z]/.test(password) // At least one lowercase letter
-  const hasDigits = /\d/.test(password) // At least one number
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password) // At least one special character
-
-  // Validate password
-  if (password.length < minLength) {
-    return 'Password must be at least 8 characters long.'
-  }
-  if (password.length > maxLength) {
-    return 'Password must not exceed 50 characters.'
-  }
-  if (!hasUpperCase) {
-    return 'Password must contain at least one uppercase letter.'
-  }
-  if (!hasLowerCase) {
-    return 'Password must contain at least one lowercase letter.'
-  }
-  if (!hasDigits) {
-    return 'Password must contain at least one number.'
-  }
-  if (!hasSpecialChar) {
-    return 'Password must contain at least one special character.'
-  }
-
-  return 'Password is valid!'
-}
-export function validateRequired(input?: string) {
-  let validation: ValidationResult
-  if (!input || input.trim() === '') {
-    validation = {
-      status: false,
-      message: 'Required'
-    }
-    return validation
-  }
-  validation = {
-    status: true
   }
   return validation
 }
+let pass: string | undefined
+export function validatePassword(
+  isTouched: boolean,
+  isDirty: boolean,
+  input?: string
+) {
+  pass = input
+  let validation: ValidationResult = {
+    status: false
+  }
+  if (isTouched) {
+    if (!input) {
+      validation = {
+        status: false,
+        message: '*Required'
+      }
+    } else if (isDirty) {
+      // Password should be at least 8 characters long
+      const minLength = 8
+      const maxLength = 50
 
-// Example usage:
-const password = 'Test@1234'
-const validationMessage = validatePassword(password)
-console.log(validationMessage)
+      // Regular expression checks:
+      const hasUpperCase = /[A-Z]/.test(input) // At least one uppercase letter
+      const hasLowerCase = /[a-z]/.test(input) // At least one lowercase letter
+      const hasDigits = /\d/.test(input) // At least one number
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(input) // At least one special character
+
+      // Validate password
+      if (input.length < minLength) {
+        validation = {
+          status: false,
+          message: 'Password must be at least 8 characters long'
+        }
+        return validation
+      }
+      if (input.length > maxLength) {
+        validation = {
+          status: false,
+          message: 'Password must not exceed 50 characters'
+        }
+        return validation
+      }
+      if (!hasUpperCase) {
+        validation = {
+          status: false,
+          message: 'Password must contain at least one uppercase letter'
+        }
+        return validation
+      }
+      if (!hasLowerCase) {
+        validation = {
+          status: false,
+          message: 'Password must contain at least one lowercase letter'
+        }
+        return validation
+      }
+      if (!hasDigits) {
+        validation = {
+          status: false,
+          message: 'Password must contain at least one number'
+        }
+        return validation
+      }
+      if (!hasSpecialChar) {
+        validation = {
+          status: false,
+          message: 'Password must contain at least one special character'
+        }
+        return validation
+      }
+    } else {
+      validation = {
+        status: true
+      }
+    }
+  }
+  return validation
+}
+export function validateConfirmPassword(
+  isTouched: boolean,
+  isDirty: boolean,
+  input?: string,
+  confirmPassword?: string
+) {
+  let validation: ValidationResult = {
+    status: false
+  }
+  if (isTouched) {
+    if (!input) {
+      validation = {
+        status: false,
+        message: '*Required'
+      }
+    } else if (pass !== input) {
+      validation = {
+        status: false,
+        message: 'Passwords should match'
+      }
+      return validation
+    } else {
+      validation = {
+        status: true
+      }
+    }
+  }
+  return validation
+}
+export function validateRequired(
+  isTouched: boolean,
+  isDirty: boolean,
+  input?: string
+) {
+  let validation: ValidationResult = {
+    status: false
+  }
+  if (isTouched) {
+    if (!input) {
+      validation = {
+        status: false,
+        message: '*Required'
+      }
+    } else {
+      validation = {
+        status: true
+      }
+    }
+  }
+  return validation
+}

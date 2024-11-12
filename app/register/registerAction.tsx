@@ -24,7 +24,7 @@ export async function registerAction(
   console.log(data)
 
   db.push(data)
-  redirect('/login')
+  // redirect('/login')
   //validate
   //if validation error then return validation message else redirect to login page
 
@@ -32,5 +32,5 @@ export async function registerAction(
 
   //redirect to login
 
-  return 'validationMessages'
+  return 'Aferin Gencay Kaydoldun. Şimdi yat uyu!'
 }

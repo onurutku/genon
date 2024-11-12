@@ -1,12 +1,23 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { registerAction } from './registerAction'
 import Link from 'next/link'
 import Input from '@/public/components/input'
-import { validateEmail } from '@/public/helpers/validators'
+import {
+  validateConfirmPassword,
+  validateEmail,
+  validatePassword,
+  validateRequired
+} from '@/public/helpers/validators'
 
 export default function Register() {
   const [formState, formAction] = React.useActionState(registerAction, null)
+  const [submit, setSubmit] = useState<boolean>(false)
+  const [isFormValid, setIsFormValid] = useState<boolean>(false)
+
+  const getValidStatus = (validStatus: { name: string; isValid: boolean }) => {
+    setIsFormValid(validStatus.isValid)
+  }
 
   return (
     <div className='align-center container flex h-screen items-center justify-center'>
@@ -19,12 +30,18 @@ export default function Register() {
             name='firstName'
             placeholder='First Name'
             maxLength={50}
+            validator={validateRequired}
+            validStatus={getValidStatus}
+            isTouchedBySubmit={submit}
           />
           <Input
             type='text'
             name='lastName'
             placeholder='Last Name'
             maxLength={50}
+            validator={validateRequired}
+            validStatus={getValidStatus}
+            isTouchedBySubmit={submit}
           />
           <Input
             type='text'
@@ -32,19 +49,43 @@ export default function Register() {
             placeholder='Email'
             maxLength={100}
             validator={validateEmail}
+            validStatus={getValidStatus}
+            isTouchedBySubmit={submit}
           />
-          <Input type={'password'} name='password' placeholder='Password' />
+          <Input
+            type={'password'}
+            name='password'
+            placeholder='Password'
+            validator={validatePassword}
+            validStatus={getValidStatus}
+            isTouchedBySubmit={submit}
+          />
           <Input
             type={'password'}
             name='repassword'
             placeholder='Confirm Password'
+            validator={validateConfirmPassword}
+            validStatus={getValidStatus}
+            isTouchedBySubmit={submit}
           />
-          <button
-            type='submit'
-            className='mt-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50'
-          >
-            Agree & Join
-          </button>
+          {!isFormValid && (
+            <button
+              type='button'
+              onClick={() => setSubmit(true)}
+              className='mt-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50'
+            >
+              Agree & Join
+            </button>
+          )}
+
+          {isFormValid && (
+            <button
+              type='submit'
+              className='mt-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50'
+            >
+              Agree & Join
+            </button>
+          )}
 
           <div className='my-4 flex items-center'>
             <div className='flex-grow border-t border-gray-300'></div>
@@ -59,8 +100,8 @@ export default function Register() {
             Sign In
           </Link>
         </p>
+        <h1 className='text-xl text-red-500'>{formState}</h1>
       </div>
-      {formState}
     </div>
   )
 }

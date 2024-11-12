@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { ValidationResult } from '../helpers/validators'
+import PasswordEye from './password-eye'
 interface Props {
   type: string
   name: string
@@ -10,8 +11,10 @@ interface Props {
   validator?: (
     isTouched: boolean,
     isDirty: boolean,
-    email?: string
+    input?: string
   ) => ValidationResult
+  validStatus: (status: { name: string; isValid: boolean }) => void
+  isTouchedBySubmit: boolean
 }
 interface InputValue {
   value: string
@@ -23,7 +26,9 @@ export default function Input({
   name,
   placeholder,
   maxLength,
-  validator
+  validator,
+  validStatus,
+  isTouchedBySubmit
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [typeState, setTypeState] = useState<string>(type)
@@ -32,6 +37,13 @@ export default function Input({
     isDirty: false,
     isTouched: false
   })
+  const [errorMessage, setErrorMessage] = useState<string>('')
+
+  useEffect(() => {
+    setValue((prev: InputValue) => {
+      return { ...prev, isTouched: isTouchedBySubmit }
+    })
+  }, [isTouchedBySubmit])
 
   useEffect(() => {
     let firstTimeClicked: boolean = false
@@ -63,10 +75,19 @@ export default function Input({
     })
   }
   useEffect(() => {
-    console.log(value)
-    console.log(isDirty)
-    console.log(isTouched)
-  }, [value, isDirty, isTouched])
+    if (!validator) {
+      return
+    }
+    setErrorMessage(validator(isTouched, isDirty, value).message!)
+    validStatus({
+      name: name,
+      isValid: validator(isTouched, isDirty, value).status
+    })
+  }, [value, isDirty, isTouched, validator])
+
+  const getEyeStatus = (eyeStatus: boolean): void => {
+    eyeStatus ? setTypeState('password') : setTypeState('text')
+  }
   return (
     <>
       <div className='relative'>
@@ -75,25 +96,14 @@ export default function Input({
           type={typeState}
           name={name}
           placeholder={placeholder}
-          className='w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none'
+          className={`${errorMessage ? 'border-rose-500' : 'border-grey-300'} w-full rounded-md border px-4 py-2 ${!errorMessage ? 'focus:border-blue-500' : null} focus:outline-none`}
           maxLength={maxLength}
           onChange={onChange}
           value={value}
         />
-        {type === 'password' && (
-          <a
-            onClick={() =>
-              setTypeState(typeState === 'password' ? 'text' : 'password')
-            }
-            className='absolute inset-y-0 right-4 flex cursor-pointer items-center text-sm text-blue-500'
-          >
-            {typeState === 'password' ? 'show' : 'hide'}
-          </a>
-        )}
+        {type === 'password' && <PasswordEye sendEyeStatus={getEyeStatus} />}
+        <span className='ms-1 text-xs text-rose-500'>{errorMessage}</span>
       </div>
-      <span className='text:sm text-red-500'>
-        {validator ? validator(isTouched, isDirty, value).message : null}
-      </span>
     </>
   )
 }
