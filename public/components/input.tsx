@@ -70,7 +70,8 @@ export default function Input({
       return {
         ...prev,
         value: val,
-        isDirty: val ? true : false
+        isDirty: val ? true : false,
+        isTouched: true
       }
     })
   }

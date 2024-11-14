@@ -100,10 +100,9 @@ export function validatePassword(
         }
         return validation
       }
-    } else {
-      validation = {
+      return (validation = {
         status: true
-      }
+      })
     }
   }
   return validation
