@@ -9,13 +9,14 @@ import {
   validatePassword,
   validateRequired
 } from '@/public/helpers/validators'
-
+interface FormValidation {
+  name: string
+  isValid: boolean
+}
 export default function Register() {
   const [formState, formAction] = React.useActionState(registerAction, null)
   const [submit, setSubmit] = useState<boolean>(false)
-  const [formValidation, setFormValidation] = useState<
-    { name: string; isValid: boolean }[]
-  >([
+  const [formValidation, setFormValidation] = useState<FormValidation[]>([
     { name: 'firstName', isValid: false },
     { name: 'lastName', isValid: false },
     { name: 'email', isValid: false },
@@ -24,9 +25,9 @@ export default function Register() {
   ])
   const [isFormValid, setIsFormValid] = useState<boolean>(false)
 
-  const getValidStatus = (validStatus: { name: string; isValid: boolean }) => {
-    setFormValidation((prev: { name: string; isValid: boolean }[]) => {
-      prev.forEach((input: { name: string; isValid: boolean }) => {
+  const getValidStatus = (validStatus: FormValidation) => {
+    setFormValidation((prev: FormValidation[]) => {
+      prev.forEach((input: FormValidation) => {
         if (input.name === validStatus.name) {
           return (input.isValid = validStatus.isValid)
         }
@@ -36,9 +37,9 @@ export default function Register() {
     })
   }
   useEffect(() => {
-    console.log(formValidation)
-
-    if (formValidation.find((input: any) => input.isValid === false)) {
+    if (
+      formValidation.find((input: FormValidation) => input.isValid === false)
+    ) {
       setIsFormValid(false)
     } else {
       setIsFormValid(true)
